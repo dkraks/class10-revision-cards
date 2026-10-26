@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Class 10 Revision Cards</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<style>
+/* Layout: one column of index cards under a scrolling deck switcher; large tap targets throughout */
+:root {
+  --bg: #EEF2F6;
+  --card: #FFFFFF;
+  --ink: #15212C;
+  --muted: #566573;
+  --line: #D3DCE4;
+  --rule: #E6EDF3;
+  --accent: #1F5FBF;
+  --accent-soft: #DCE8FA;
+  --good: #1D7A4B;
+  --good-soft: #DDF2E6;
+  --again: #A85A0A;
+  --again-soft: #FBEAD6;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E151C; --card: #16202A; --ink: #E5ECF2; --muted: #95A3B0; --line: #2A3845; --rule: #1D2833;
+    --accent: #79A8F2; --accent-soft: #1C2D47; --good: #5FC28F; --good-soft: #163327; --again: #EBA25A; --again-soft: #3A2814;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E151C; --card: #16202A; --ink: #E5ECF2; --muted: #95A3B0; --line: #2A3845; --rule: #1D2833;
+  --accent: #79A8F2; --accent-soft: #1C2D47; --good: #5FC28F; --good-soft: #163327; --again: #EBA25A; --again-soft: #3A2814;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+}
+.wrap { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+h1 { font-family: var(--display); font-weight: 800; font-size: clamp(26px, 6vw, 36px); line-height: 1.1; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+.sub { margin: 4px 0 0; color: var(--muted); }
+.tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+.tab {
+  flex: none; border: 1.5px solid var(--line); background: var(--card); color: var(--ink);
+  font: 700 15px var(--body); padding: 10px 14px; border-radius: 999px; cursor: pointer; min-height: 44px;
+}
+.tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--card); }
+.tab:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.intro { margin: 0; color: var(--muted); }
+.bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.count { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 15px; }
+.count b { color: var(--ink); }
+.progress { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.progress span { display: block; height: 100%; background: var(--good); width: 0; transition: width .3s; }
+.card {
+  background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 22px 20px 24px;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 31px, var(--rule) 31px, var(--rule) 32px);
+  background-position: 0 52px; min-height: 260px; display: flex; flex-direction: column; gap: 14px;
+}
+.tag { align-self: flex-start; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 3px 9px; border-radius: 6px; }
+.q { font-family: var(--display); font-weight: 600; font-size: clamp(20px, 4.6vw, 25px); line-height: 1.3; margin: 0; text-wrap: balance; }
+.a { white-space: pre-line; font-size: 19px; line-height: 1.6; margin: 0; padding-top: 12px; border-top: 2px dashed var(--line); }
+.hint { color: var(--muted); font-size: 15px; margin: 0; }
+.btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn {
+  flex: 1 1 140px; min-height: 52px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--card);
+  color: var(--ink); font: 700 17px var(--body); cursor: pointer; padding: 10px 14px;
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--card); }
+.btn.good { background: var(--good-soft); border-color: var(--good); color: var(--good); }
+.btn.again { background: var(--again-soft); border-color: var(--again); color: var(--again); }
+.btn.small { flex: 0 0 auto; min-height: 40px; font-size: 14px; padding: 6px 12px; }
+.done { text-align: center; padding: 28px 12px; }
+.done h2 { font-family: var(--display); margin: 0 0 6px; font-size: 26px; }
+.list { display: flex; flex-direction: column; gap: 10px; }
+.row { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 4px; }
+.row .rq { font-weight: 700; }
+.row .ra { white-space: pre-line; color: var(--muted); }
+.row.known { border-left: 5px solid var(--good); }
+/* Reading drill */
+.words { display: flex; flex-wrap: wrap; gap: 6px; font-size: 19px; line-height: 1.4; }
+.w { border: 1.5px solid transparent; background: transparent; color: var(--ink); font: inherit; padding: 4px 6px; border-radius: 8px; cursor: pointer; }
+.w:hover { border-color: var(--line); }
+.w.on { background: var(--accent-soft); border-color: var(--accent); }
+.w.hit { background: var(--good-soft); border-color: var(--good); }
+.w.miss { border: 2px dashed var(--again); }
+.w.extra { opacity: .55; text-decoration: line-through; }
+.find { background: var(--accent-soft); border-radius: 10px; padding: 12px 14px; margin: 0; font-weight: 700; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 14px; color: var(--muted); }
+.legend span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.lg-hit::before { background: var(--good-soft); border: 1.5px solid var(--good); }
+.lg-miss::before { border: 2px dashed var(--again); }
+/* Proof order */
+.placed, .pool { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.placed li { background: var(--good-soft); border: 1.5px solid var(--good); border-radius: 10px; padding: 10px 12px; display: flex; gap: 10px; }
+.placed li b { color: var(--good); font-variant-numeric: tabular-nums; }
+.pool button { text-align: left; width: 100%; border: 1.5px solid var(--line); background: var(--card); color: var(--ink); font: 400 17px var(--body); padding: 12px 14px; border-radius: 10px; cursor: pointer; min-height: 48px; }
+.pool button.wrong { border-color: var(--again); background: var(--again-soft); animation: shake .3s; }
+@keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+@media (prefers-reduced-motion: reduce) { .pool button.wrong { animation: none; } .progress span { transition: none; } }
+.label { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 4px 0 0; }
+/* Exam card */
+.exam { display: grid; gap: 16px; }
+.exam section { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+.exam h3 { font-family: var(--display); margin: 0 0 8px; font-size: 20px; }
+.exam ol, .exam ul { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Class 10 Revision Cards</h1>
+    <p class="sub">Pick a deck. Say the answer out loud first, then check.</p>
+  </header>
+  <nav class="tabs" role="tablist" id="tabs"></nav>
+  <main id="view"></main>
+</div>
+
+<script>
+const DECKS = [
+{ id: "twins", name: "Physics & Bio twins", kind: "flash",
+  intro: "Pairs that are easy to mix up. Learn both sides together.",
+  cards: [
+  ["Lenses", "Convex lens: converges or diverges light?", "Converges. It brings rays together."],
+  ["Lenses", "Concave lens: converges or diverges light?", "Diverges. It spreads rays apart."],
+  ["Lenses", "Sign of focal length and power for a CONVEX lens?", "Positive (+)"],
+  ["Lenses", "Sign of focal length and power for a CONCAVE lens?", "Negative (−)"],
+  ["Lenses", "Which lens ALWAYS forms a virtual, erect, diminished image?", "Concave lens"],
+  ["Lenses", "When does a convex lens form a virtual, erect, magnified image?", "When the object is between F and the lens.\n(Like a magnifying glass.)"],
+  ["Lenses", "Power formula and unit", "P = 1/f\nf must be in METRES.\nUnit: dioptre (D)"],
+  ["Lenses", "Power = −2 D. Focal length and type of lens?", "f = 1/(−2) = −0.5 m = −50 cm\nNegative, so CONCAVE lens"],
+  ["Lenses", "f = 25 cm. Power?", "Change to metres first: 25 cm = 0.25 m\nP = 1/0.25 = +4 D"],
+  ["Mirrors", "Sign of focal length: concave mirror vs convex mirror", "Concave mirror: negative (−)\nConvex mirror: positive (+)"],
+  ["Mirrors", "When does a concave mirror form an erect, magnified image?", "When the object is between P (pole) and F (focus).\nThe image is virtual and behind the mirror."],
+  ["Mirrors", "Which mirror is used as a rear-view mirror? Why?", "Convex mirror.\nAlways erect image and a wider field of view."],
+  ["Mirrors", "Which mirror is used for shaving and in torches?", "Concave mirror"],
+  ["Formulas", "Mirror formula and lens formula", "Mirror: 1/v + 1/u = 1/f\nLens: 1/v − 1/u = 1/f"],
+  ["Formulas", "Magnification: mirror and lens", "Mirror: m = −v/u\nLens: m = v/u"],
+  ["Eye", "Myopia: what can't the person see? Where does the image form?", "Can't see FAR objects.\nImage forms IN FRONT OF the retina."],
+  ["Eye", "Hypermetropia: what can't the person see? Where does the image form?", "Can't see NEAR objects.\nImage forms BEHIND the retina."],
+  ["Eye", "Which lens corrects myopia? Which corrects hypermetropia?", "Myopia → concave lens (−)\nHypermetropia → convex lens (+)"],
+  ["Eye", "Two causes of myopia", "1. Eyeball is too long.\n2. Eye lens is too curved (focal length too short)."],
+  ["Eye", "Two causes of hypermetropia", "1. Eyeball is too short.\n2. Focal length of the eye lens is too long."],
+  ["Eye", "Power of accommodation", "The ability of the eye lens to change its focal length to see near and far objects clearly."],
+  ["Light", "Prism: which colour bends the LEAST? The MOST?", "Red bends the least.\nViolet bends the most.\nOrder: VIBGYOR (violet at the bottom)."],
+  ["Light", "Rainbow is formed by…", "Dispersion, refraction and total internal reflection in raindrops."],
+  ["Light", "A star appears on the horizon. Where is it really?", "Slightly BELOW the horizon.\nAtmospheric refraction bends its light, so it looks higher."],
+  ["Light", "Why do stars twinkle?", "Atmospheric refraction. The air keeps changing, so the star's light reaching us keeps flickering."],
+  ["Excretion", "Excretory system organs, in order", "Kidneys → ureters → urinary bladder → urethra"],
+  ["Excretion", "Where is blood filtered? Where is urine stored?", "Filtered in the nephron (glomerulus inside Bowman's capsule).\nStored in the urinary bladder."],
+  ["Respiration", "Three ways glucose is broken down", "1. With oxygen (mitochondria) → CO₂ + water + lots of energy\n2. No oxygen, in yeast → ethanol + CO₂ + energy\n3. Muscles short of oxygen → lactic acid + energy\nAll start with glucose → pyruvate in the cytoplasm."],
+  ["Respiration", "Why do muscles cramp after hard running?", "Lack of oxygen → lactic acid builds up in muscles."],
+  ["Respiration", "Path of air into the lungs", "Nasal cavity → pharynx → larynx → trachea → bronchi → bronchioles → alveoli"],
+  ["Digestion", "What does pepsin digest? What does HCl do?", "Pepsin digests PROTEINS in the stomach.\nHCl makes the stomach acidic so pepsin can work. It also kills germs."],
+  ["Digestion", "Enzymes in pancreatic juice", "Trypsin → proteins\nLipase → fats\nAmylase → starch"],
+  ["Heart", "Double circulation: right side of the heart", "Deoxygenated blood from the body → right atrium → right ventricle → lungs"],
+  ["Heart", "Double circulation: left side of the heart", "Oxygenated blood from the lungs → left atrium → left ventricle → whole body"],
+  ["Heart", "Why must left and right sides stay separate?", "So oxygenated and deoxygenated blood don't mix.\nThis gives a rich oxygen supply for high energy and steady body temperature."],
+  ["Plants", "Variegated leaf experiment proves… KOH-in-jar experiment proves…", "Variegated leaf → chlorophyll is needed for photosynthesis.\nKOH jar → carbon dioxide is needed."],
+  ["Plants", "What happens if stomata are blocked by dust?", "CO₂ cannot enter the leaf, so photosynthesis slows down.\nTranspiration also drops."],
+  ["Ecology", "Grass → Deer → Tiger. Deer disappear. What happens?", "Tigers decrease (no food).\nGrass increases (nothing eats it)."],
+  ["Ecology", "Why are there fewer organisms at higher levels of a food chain?", "Only about 10% of energy passes to the next level, so less food is available higher up."],
+  ["Ecology", "Bin colours in India", "Green bin → biodegradable (wet) waste\nBlue bin → non-biodegradable (dry) waste"]
+  ]},
+{ id: "maths", name: "Maths rules", kind: "flash",
+  intro: "Formulas and conditions that MCQs test. Say the rule, then check.",
+  cards: [
+  ["Quadratics", "Discriminant D: formula and what each sign means", "D = b² − 4ac\nD > 0 → real, distinct roots\nD = 0 → real, equal roots\nD < 0 → no real roots"],
+  ["Quadratics", "Quadratic formula", "x = (−b ± √D) / 2a"],
+  ["Quadratics", "Zeroes α, β of ax² + bx + c: sum and product", "α + β = −b/a\nαβ = c/a"],
+  ["Quadratics", "One root is the RECIPROCAL of the other. What does that give you?", "Product of roots = 1\nc/a = 1, so c = a"],
+  ["Polynomials", "Number of zeroes from a graph", "Count the points where the graph meets the x-axis."],
+  ["Linear eqns", "When do two lines INTERSECT (one solution)?", "a₁/a₂ ≠ b₁/b₂\nConsistent, unique solution. Also called 'independent'."],
+  ["Linear eqns", "When are two lines COINCIDENT?", "a₁/a₂ = b₁/b₂ = c₁/c₂\nInfinitely many solutions (dependent)."],
+  ["Linear eqns", "When are two lines PARALLEL?", "a₁/a₂ = b₁/b₂ ≠ c₁/c₂\nNo solution (inconsistent)."],
+  ["Coordinates", "Distance formula", "AB = √[(x₂ − x₁)² + (y₂ − y₁)²]\nFrom origin: √(x² + y²)"],
+  ["Coordinates", "Distance between (a, b) and (−a, −b)", "√[(2a)² + (2b)²] = 2√(a² + b²)\nDon't drop the 2."],
+  ["Coordinates", "Section formula, ratio m : n", "x = (mx₂ + nx₁)/(m + n)\ny = (my₂ + ny₁)/(m + n)"],
+  ["Coordinates", "Midpoint formula", "x = (x₁ + x₂)/2\ny = (y₁ + y₂)/2"],
+  ["Coordinates", "Ratio in which the x-axis divides a line", "A point on the x-axis has y = 0.\nTake the ratio k : 1 and set the y-coordinate equal to 0."],
+  ["AP", "nth term of an AP", "aₙ = a + (n − 1)d"],
+  ["AP", "Sum of first n terms of an AP", "Sₙ = n/2 [2a + (n − 1)d]\nor Sₙ = n/2 (a + l), where l = last term"],
+  ["AP", "Three numbers in AP: how to name them", "a − d, a, a + d\nTheir sum is 3a."],
+  ["AP", "Sum of first n odd natural numbers", "n²\n(1 + 3 + 5 = 9 = 3²)"],
+  ["AP", "Sum of first n natural numbers", "n(n + 1)/2"],
+  ["Numbers", "HCF and LCM rule for two numbers", "HCF × LCM = product of the two numbers"],
+  ["Probability", "Probability of an event NOT happening", "P(not E) = 1 − P(E)"],
+  ["Probability", "Probability always lies between…", "0 and 1\nImpossible = 0, certain = 1"],
+  ["Trig", "sin of 0°, 30°, 45°, 60°, 90°", "0, 1/2, 1/√2, √3/2, 1"],
+  ["Trig", "cos of 0°, 30°, 45°, 60°, 90°", "1, √3/2, 1/√2, 1/2, 0"],
+  ["Trig", "tan of 0°, 30°, 45°, 60°, 90°", "0, 1/√3, 1, √3, not defined"],
+  ["Trig", "Three identities", "sin²θ + cos²θ = 1\n1 + tan²θ = sec²θ\n1 + cot²θ = cosec²θ"],
+  ["Trig", "Triangle right-angled at C. What is A + B?", "A + B = 90°\nSo sec(A + B) = sec 90° = not defined"],
+  ["Trig", "sin θ = cos θ. Find θ and cot θ.", "θ = 45°, cot θ = 1"],
+  ["Heights", "The shadow gets LONGER. The Sun's angle of elevation…", "DECREASES (the Sun is lower)."],
+  ["Heights", "Rod : shadow = 1 : √3. Angle of elevation?", "tan θ = 1/√3, so θ = 30°"],
+  ["Triangles", "Similarity criteria", "AA, SSS, SAS\nSimilar = same shape.\nCongruent = same shape AND same size."],
+  ["Triangles", "AB/DE = BC/FD. Which angles must be equal (SAS)?", "The angle between the two sides.\nB is in both AB and BC. D is in both DE and FD.\nSo ∠B = ∠D."],
+  ["Triangles", "Basic Proportionality Theorem (statement)", "If a line is drawn parallel to one side of a triangle, cutting the other two sides at distinct points, it divides those two sides in the same ratio."],
+  ["Triangles", "Two equal angles in a triangle tell you…", "The sides opposite them are equal."],
+  ["Algebra", "a³ − b³ = ?", "(a − b)(a² + ab + b²)"]
+  ]},
+{ id: "eqns", name: "Equation bank", kind: "flash",
+  intro: "Write the equation on rough paper, balanced. Then check.",
+  cards: [
+  ["1", "Magnesium burns in air", "2Mg + O₂ → 2MgO\nCombination. White ash."],
+  ["2", "Quicklime + water", "CaO + H₂O → Ca(OH)₂ + heat\nCombination, exothermic. Gives slaked lime."],
+  ["3", "Electrolysis of water", "2H₂O → 2H₂ + O₂\nDecomposition. H₂ : O₂ = 2 : 1 by volume."],
+  ["4", "Silver chloride in sunlight", "2AgCl → 2Ag + Cl₂\nPhotolytic decomposition. White turns grey."],
+  ["5", "Limestone heated", "CaCO₃ → CaO + CO₂\nThermal decomposition."],
+  ["6", "Ferrous sulphate heated", "2FeSO₄ → Fe₂O₃ + SO₂ + SO₃\nGreen crystals turn brown; smell of burning sulphur."],
+  ["7", "Lead nitrate heated", "2Pb(NO₃)₂ → 2PbO + 4NO₂ + O₂\nBrown fumes of NO₂."],
+  ["8", "Iron nail in copper sulphate solution", "Fe + CuSO₄ → FeSO₄ + Cu\nDisplacement. Blue solution turns green."],
+  ["9", "Sodium sulphate + barium chloride", "Na₂SO₄ + BaCl₂ → BaSO₄ + 2NaCl\nDouble displacement. White precipitate."],
+  ["10", "Copper heated in air", "2Cu + O₂ → 2CuO\nReddish-brown copper turns black (copper oxide)."],
+  ["11", "Copper oxide + hydrogen", "CuO + H₂ → Cu + H₂O\nRedox: CuO is reduced, H₂ is oxidised."],
+  ["12", "Zinc + dilute sulphuric acid", "Zn + H₂SO₄ → ZnSO₄ + H₂"],
+  ["13", "CO₂ through lime water", "Ca(OH)₂ + CO₂ → CaCO₃ + H₂O\nTurns milky."],
+  ["14", "Excess CO₂ through lime water", "CaCO₃ + H₂O + CO₂ → Ca(HCO₃)₂\nMilkiness disappears: insoluble CaCO₃ becomes soluble Ca(HCO₃)₂."],
+  ["15", "Sodium hydroxide + hydrochloric acid", "NaOH + HCl → NaCl + H₂O\nNeutralisation."],
+  ["16", "Sodium carbonate + hydrochloric acid", "Na₂CO₃ + 2HCl → 2NaCl + H₂O + CO₂"],
+  ["17", "Chlor-alkali process", "2NaCl + 2H₂O → 2NaOH + Cl₂ + H₂\nCl₂ at anode, H₂ at cathode, NaOH near cathode."],
+  ["18", "Making bleaching powder", "Ca(OH)₂ + Cl₂ → CaOCl₂ + H₂O"],
+  ["19", "Baking soda heated", "2NaHCO₃ → Na₂CO₃ + H₂O + CO₂"],
+  ["20", "Plaster of Paris + water", "CaSO₄·½H₂O + 1½H₂O → CaSO₄·2H₂O\nSets into hard gypsum."],
+  ["21", "Sulphur dioxide + water", "SO₂ + H₂O → H₂SO₃\nSulphurous acid."],
+  ["22", "Sodium + cold water", "2Na + 2H₂O → 2NaOH + H₂\nVery vigorous, exothermic."],
+  ["23", "Iron + oxygen", "3Fe + 2O₂ → Fe₃O₄"],
+  ["24", "Iron + steam", "3Fe + 4H₂O → Fe₃O₄ + 4H₂"],
+  ["25", "Aluminium + potassium hydroxide", "2Al + 2KOH + 2H₂O → 2KAlO₂ + 3H₂\nAluminium is amphoteric: it reacts with bases too."],
+  ["26", "Iron(III) oxide + dilute sulphuric acid", "Fe₂O₃ + 3H₂SO₄ → Fe₂(SO₄)₃ + 3H₂O"]
+  ]},
+{ id: "chem", name: "Chemistry facts", kind: "flash",
+  intro: "Tests, indicators, and compounds that come up every year.",
+  cards: [
+  ["Gas test", "Test for carbon dioxide", "Pass it through lime water. Lime water turns milky.\nCa(OH)₂ + CO₂ → CaCO₃ + H₂O"],
+  ["Gas test", "Test for oxygen", "A glowing splint relights."],
+  ["Gas test", "Test for hydrogen", "Burns with a pop sound near a flame."],
+  ["Gas test", "Test for sulphur dioxide", "Turns acidified potassium dichromate from orange to green. Smells like burning sulphur."],
+  ["Indicator", "Phenolphthalein in acid and in base", "Acid: colourless\nBase: pink"],
+  ["Indicator", "Methyl orange in acid and in base", "Acid: red\nBase: yellow"],
+  ["Indicator", "Litmus", "Acid turns blue litmus red.\nBase turns red litmus blue."],
+  ["pH", "pH scale", "Below 7: acid\n7: neutral\nAbove 7: base"],
+  ["pH", "Which ion makes a solution acidic? Which makes it basic?", "Acid: H⁺ ions\nBase: OH⁻ ions"],
+  ["pH", "Tooth decay starts below pH… How does toothpaste help?", "Below pH 5.5.\nToothpaste is basic. It neutralises the acid."],
+  ["Acids", "Mixing acid and water: the safe method", "Add ACID to WATER slowly, stirring.\nNever water to acid: it releases so much heat it can splash."],
+  ["Acids", "Strong acids vs weak acids", "Strong: HCl, H₂SO₄, HNO₃\nWeak: CH₃COOH (acetic), H₂CO₃ (carbonic)"],
+  ["Salts", "Plaster of Paris: chemical name, formula, use", "Calcium sulphate hemihydrate\nCaSO₄·½H₂O\nSupporting fractured bones, toys, decoration."],
+  ["Salts", "Gypsum formula", "CaSO₄·2H₂O"],
+  ["Salts", "Washing soda: formula and two uses", "Na₂CO₃·10H₂O\nGlass, soap and paper industries; removing permanent hardness of water; cleaning."],
+  ["Salts", "Baking soda: formula and two uses", "NaHCO₃\nBaking powder, antacid, soda-acid fire extinguishers."],
+  ["Salts", "Bleaching powder: formula and two uses", "CaOCl₂\nBleaching cotton and wood pulp; disinfecting drinking water."],
+  ["Salts", "Heating blue copper sulphate crystals", "Blue turns white. Crystals lose their water of crystallisation and become anhydrous."],
+  ["Chlor-alkali", "Uses of sodium hydroxide", "Soaps and detergents, paper making, artificial fibres, degreasing metals."],
+  ["Chlor-alkali", "Uses of chlorine", "Water treatment, PVC, disinfectants, pesticides, making bleaching powder."],
+  ["Reactions", "Five types of reactions", "Combination, decomposition, displacement, double displacement, redox (oxidation–reduction)."],
+  ["Reactions", "Rancidity: cause and prevention", "Oxidation of fats and oils.\nPrevent: antioxidants, nitrogen flushing, airtight containers, refrigeration."],
+  ["Reactions", "Compound A used in cement, reacts with water with lots of heat to give B", "A = calcium oxide (quicklime), CaO\nB = calcium hydroxide (slaked lime), Ca(OH)₂"],
+  ["Reactions", "Copper powder heated: black coating. What is it?", "Copper oxide (CuO). Copper reacts with oxygen in air."]
+  ]},
+{ id: "proofs", name: "Proof order", kind: "order",
+  intro: "Tap the steps in the right order. This builds the proof without writing it out.",
+  items: [
+  { title: "√2 is irrational", steps: [
+    "Assume √2 is rational. So √2 = a/b, with a and b co-prime and b ≠ 0.",
+    "Square both sides: 2b² = a².",
+    "So 2 divides a², so 2 divides a.",
+    "Let a = 2c. Then 2b² = 4c², so b² = 2c².",
+    "So 2 divides b².  So 2 divides b.",
+    "2 divides both a and b. This contradicts 'co-prime'.",
+    "So the assumption is wrong. √2 is irrational."]},
+  { title: "√2 + √3 is irrational", steps: [
+    "Assume √2 + √3 = r, where r is rational.",
+    "Then √3 = r − √2.",
+    "Square both sides: 3 = r² − 2r√2 + 2.",
+    "So √2 = (r² − 1) / 2r.",
+    "The right side is rational, so √2 would be rational.",
+    "But √2 is irrational. Contradiction.",
+    "So √2 + √3 is irrational."]},
+  { title: "Basic Proportionality Theorem", steps: [
+    "Given: In △ABC, DE ∥ BC. To prove: AD/DB = AE/EC.",
+    "Construction: Join BE and CD. Draw EN ⊥ AB and DM ⊥ AC.",
+    "ar(ADE)/ar(BDE) = (½·AD·EN)/(½·DB·EN) = AD/DB",
+    "ar(ADE)/ar(DEC) = (½·AE·DM)/(½·EC·DM) = AE/EC",
+    "ar(BDE) = ar(DEC): same base DE, between the same parallels DE and BC.",
+    "So AD/DB = AE/EC. Hence proved."]},
+  { title: "△PQS ~ △TQR (NCERT Fig 6.36)", steps: [
+    "∠1 = ∠2 (given), so PQ = PR (sides opposite equal angles).",
+    "QR/QS = QT/PR (given), so QR/QS = QT/PQ.",
+    "So QP/QT = QS/QR.",
+    "In △PQS and △TQR: ∠Q = ∠Q (common).",
+    "So △PQS ~ △TQR (SAS similarity)."]},
+  { title: "Any trig identity: the method", steps: [
+    "Start with the longer side (usually LHS).",
+    "Change everything to sin and cos.",
+    "Combine fractions over a common denominator.",
+    "Look for sin²θ + cos²θ = 1 and use it.",
+    "Simplify until it matches the RHS. Write '= RHS. Hence proved.'"]}
+  ]},
+{ id: "drill", name: "Reading drill", kind: "drill",
+  intro: "Don't solve. Tap the words that change what the question is asking. Then check and read the Find line.",
+  items: [
+  { text: "If x² + 5x + k = 0 has two [real and distinct] roots, which value can k take?", find: "Find: k so that D > 0 (not D = 0)." },
+  { text: "What is the probability of [not] getting a six when a die is thrown once?", find: "Find: 1 − P(six) = 5/6." },
+  { text: "[Three] [consecutive integers] are such that the [square of the first] plus the [product of the other two] is 154. Find them.", find: "Find: x, x + 1, x + 2 with x² + (x + 1)(x + 2) = 154." },
+  { text: "Amit's father is 30 years older than him. [Five years from now] the product of their ages will be 400. Find Amit's [present] age.", find: "Find: use (x + 5) and (x + 35), then give x, today's age." },
+  { text: "If one root of 3x² − 7x + k = 0 is the [reciprocal] of the other, find k.", find: "Find: product of roots = 1, so k/3 = 1, k = 3." },
+  { text: "In △PQR, [right-angled at R], find cos(P + Q).", find: "Find: P + Q = 90°, so cos 90° = 0." },
+  { text: "Which equation forms a pair with a [unique solution] when taken with 2x − 3y = 5?", find: "Find: the option where a₁/a₂ ≠ b₁/b₂." },
+  { text: "A [concave mirror] forms an [erect] image. Where must the object be placed?", find: "Find: object between P and F (mirror, not lens)." },
+  { text: "Draw the [excretory system] and label the part where urine is [stored].", find: "Find: kidneys–ureters–bladder–urethra diagram; label the urinary bladder." },
+  { text: "Which of the following statements is [NOT] correct?", find: "Find: the one FALSE statement." },
+  { text: "Find the power of the lens for a person who cannot see [near objects] clearly.", find: "Find: hypermetropia → convex lens, positive power." },
+  { text: "Name the colour of white light that deviates the [least] in a prism.", find: "Find: red (least), not violet (most)." },
+  { text: "A star appears on the horizon. What is its [true position]?", find: "Find: below the horizon. Not a question about twinkling." },
+  { text: "If the shadow of a tower is [increasing], what happens to the [angle of elevation]?", find: "Find: the angle decreases." }
+  ]},
+{ id: "exam", name: "Exam-day card", kind: "static" }
+];
+
+/* storage helpers: per-device convenience only */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+const tabs = document.getElementById("tabs");
+const view = document.getElementById("view");
+let current = store.get("rev-tab", "twins");
+if (!DECKS.find(d => d.id === current)) current = "twins";
+
+function renderTabs() {
+  tabs.innerHTML = "";
+  DECKS.forEach(d => {
+    const b = el("button", "tab", d.name);
+    b.id = "tab-" + d.id; b.setAttribute("role", "tab");
+    b.setAttribute("aria-selected", d.id === current ? "true" : "false");
+    b.onclick = () => { current = d.id; store.set("rev-tab", current); renderTabs(); render(); };
+    tabs.appendChild(b);
+  });
+}
+
+/* ---------- Flashcards ---------- */
+const sessions = {};
+function flashSession(d, onlyAgain) {
+  const known = new Set(store.get("rev-known-" + d.id, []));
+  let idx = d.cards.map((_, i) => i);
+  if (onlyAgain) idx = idx.filter(i => !known.has(i));
+  sessions[d.id] = { queue: shuffle(idx), shown: false, list: false };
+}
+function renderFlash(d) {
+  if (!sessions[d.id]) flashSession(d, false);
+  const s = sessions[d.id];
+  const known = new Set(store.get("rev-known-" + d.id, []));
+  const box = el("div"); box.style.display = "grid"; box.style.gap = "14px";
+  box.appendChild(el("p", "intro", d.intro));
+
+  const bar = el("div", "bar");
+  const count = el("div", "count");
+  count.innerHTML = "<b>" + known.size + "</b> of " + d.cards.length + " known · " + s.queue.length + " left this round";
+  bar.appendChild(count);
+  const tools = el("div", "btns");
+  const listBtn = el("button", "btn small", s.list ? "Back to cards" : "See all");
+  listBtn.onclick = () => { s.list = !s.list; render(); };
+  const resetBtn = el("button", "btn small", "Reset progress");
+  resetBtn.onclick = () => {
+    if (resetBtn.dataset.confirm) { store.set("rev-known-" + d.id, []); flashSession(d, false); render(); }
+    else { resetBtn.dataset.confirm = "1"; resetBtn.textContent = "Tap again to reset"; }
+  };
+  tools.append(listBtn, resetBtn);
+  bar.appendChild(tools);
+  box.appendChild(bar);
+  const prog = el("div", "progress"); const fill = el("span"); fill.style.width = (100 * known.size / d.cards.length) + "%"; prog.appendChild(fill); box.appendChild(prog);
+
+  if (s.list) {
+    const list = el("div", "list");
+    d.cards.forEach((c, i) => {
+      const r = el("div", "row" + (known.has(i) ? " known" : ""));
+      r.append(el("span", "tag", c[0]), el("div", "rq", c[1]), el("div", "ra", c[2]));
+      list.appendChild(r);
+    });
+    box.appendChild(list);
+    return box;
+  }
+
+  if (!s.queue.length) {
+    const done = el("div", "card done");
+    done.appendChild(el("h2", null, "Round finished"));
+    const left = d.cards.length - known.size;
+    done.appendChild(el("p", "hint", left ? left + " cards still marked Again." : "Every card in this deck is known. Come back in 3 days to check."));
+    const b = el("div", "btns");
+    const again = el("button", "btn primary", left ? "Practise the Again cards" : "Go through all again");
+    again.onclick = () => { flashSession(d, !!left); render(); };
+    const all = el("button", "btn", "Whole deck");
+    all.onclick = () => { flashSession(d, false); render(); };
+    b.append(again, all); done.appendChild(b);
+    box.appendChild(done);
+    return box;
+  }
+
+  const i = s.queue[0]; const c = d.cards[i];
+  const card = el("div", "card");
+  card.append(el("span", "tag", d.id === "eqns" ? "Equation " + c[0] : c[0]), el("p", "q", c[1]));
+  if (!s.shown) {
+    card.appendChild(el("p", "hint", d.id === "eqns" ? "Write it on paper first." : "Say the answer out loud first."));
+    const b = el("div", "btns"); b.style.marginTop = "auto";
+    const show = el("button", "btn primary", "Show answer");
+    show.onclick = () => { s.shown = true; render(); };
+    b.appendChild(show); card.appendChild(b);
+  } else {
+    card.appendChild(el("p", "a", c[2]));
+    const b = el("div", "btns"); b.style.marginTop = "auto";
+    const ag = el("button", "btn again", "Again");
+    ag.onclick = () => {
+      const k = new Set(store.get("rev-known-" + d.id, [])); k.delete(i); store.set("rev-known-" + d.id, [...k]);
+      s.queue.push(s.queue.shift()); s.shown = false; render();
+    };
+    const ok = el("button", "btn good", "Got it");
+    ok.onclick = () => {
+      const k = new Set(store.get("rev-known-" + d.id, [])); k.add(i); store.set("rev-known-" + d.id, [...k]);
+      s.queue.shift(); s.shown = false; render();
+    };
+    b.append(ag, ok); card.appendChild(b);
+  }
+  box.appendChild(card);
+  return box;
+}
+
+/* ---------- Proof order ---------- */
+const orderState = {};
+function renderOrder(d) {
+  if (!orderState.i) orderState.i = 0;
+  const item = d.items[orderState.i];
+  if (!orderState.pool || orderState.for !== orderState.i) {
+    orderState.for = orderState.i; orderState.placed = 0; orderState.mistakes = 0;
+    orderState.pool = shuffle(item.steps.map((_, k) => k));
+  }
+  const box = el("div"); box.style.display = "grid"; box.style.gap = "14px";
+  box.appendChild(el("p", "intro", d.intro));
+  const pick = el("div", "btns");
+  d.items.forEach((it, k) => {
+    const b = el("button", "btn small" + (k === orderState.i ? " primary" : ""), it.title);
+    b.onclick = () => { orderState.i = k; orderState.pool = null; render(); };
+    pick.appendChild(b);
+  });
+  box.appendChild(pick);
+
+  const card = el("div", "card");
+  card.appendChild(el("p", "q", item.title));
+  const placed = el("ol", "placed");
+  for (let k = 0; k < orderState.placed; k++) {
+    const li = el("li"); li.append(el("b", null, (k + 1) + "."), el("span", null, item.steps[k])); placed.appendChild(li);
+  }
+  card.appendChild(placed);
+  if (orderState.placed < item.steps.length) {
+    card.appendChild(el("p", "label", "Tap step " + (orderState.placed + 1)));
+    const pool = el("ul", "pool");
+    orderState.pool.filter(k => k >= orderState.placed).forEach(k => {
+      const li = el("li"); const b = el("button", null, item.steps[k]);
+      b.onclick = () => {
+        if (k === orderState.placed) { orderState.placed++; render(); }
+        else { orderState.mistakes++; b.classList.remove("wrong"); void b.offsetWidth; b.classList.add("wrong"); }
+      };
+      li.appendChild(b); pool.appendChild(li);
+    });
+    card.appendChild(pool);
+  } else {
+    card.appendChild(el("p", "hint", orderState.mistakes === 0 ? "Complete, with no wrong taps." : "Complete. Wrong taps: " + orderState.mistakes + ". Try it once more."));
+    const b = el("div", "btns");
+    const again = el("button", "btn", "Try again");
+    again.onclick = () => { orderState.pool = null; render(); };
+    const next = el("button", "btn primary", "Next proof");
+    next.onclick = () => { orderState.i = (orderState.i + 1) % d.items.length; orderState.pool = null; render(); };
+    b.append(again, next); card.appendChild(b);
+  }
+  box.appendChild(card);
+  return box;
+}
+
+/* ---------- Reading drill ---------- */
+const drillState = { i: 0, on: new Set(), checked: false };
+function renderDrill(d) {
+  const item = d.items[drillState.i];
+  const box = el("div"); box.style.display = "grid"; box.style.gap = "14px";
+  box.appendChild(el("p", "intro", d.intro));
+  const bar = el("div", "bar");
+  bar.appendChild(el("div", "count", "Question " + (drillState.i + 1) + " of " + d.items.length));
+  box.appendChild(bar);
+
+  const card = el("div", "card");
+  const words = el("div", "words");
+  const parts = item.text.split(/(\[[^\]]+\])/).filter(Boolean);
+  let n = 0;
+  parts.forEach(p => {
+    const isKey = p.startsWith("[");
+    const chunks = isKey ? [p.slice(1, -1)] : p.trim().split(/\s+/).filter(Boolean);
+    chunks.forEach(t => {
+      const id = n++;
+      const b = el("button", "w", t);
+      b.type = "button";
+      if (drillState.checked) {
+        const on = drillState.on.has(id);
+        if (isKey && on) b.classList.add("hit");
+        else if (isKey) b.classList.add("miss");
+        else if (on) b.classList.add("extra");
+      } else if (drillState.on.has(id)) b.classList.add("on");
+      b.onclick = () => {
+        if (drillState.checked) return;
+        drillState.on.has(id) ? drillState.on.delete(id) : drillState.on.add(id); render();
+      };
+      words.appendChild(b);
+    });
+  });
+  card.appendChild(words);
+  const btns = el("div", "btns"); btns.style.marginTop = "auto";
+  if (!drillState.checked) {
+    const chk = el("button", "btn primary", "Check");
+    chk.onclick = () => { drillState.checked = true; render(); };
+    btns.appendChild(chk);
+  } else {
+    const lg = el("div", "legend");
+    lg.append(el("span", "lg-hit", "Found"), el("span", "lg-miss", "Missed"));
+    card.appendChild(lg);
+    card.appendChild(el("p", "find", item.find));
+    const next = el("button", "btn primary", drillState.i + 1 < d.items.length ? "Next question" : "Start over");
+    next.onclick = () => { drillState.i = (drillState.i + 1) % d.items.length; drillState.on = new Set(); drillState.checked = false; render(); };
+    const retry = el("button", "btn", "Try this one again");
+    retry.onclick = () => { drillState.on = new Set(); drillState.checked = false; render(); };
+    btns.append(retry, next);
+  }
+  card.appendChild(btns);
+  box.appendChild(card);
+  return box;
+}
+
+/* ---------- Exam card ---------- */
+function renderExam() {
+  const box = el("div", "exam");
+  box.innerHTML = `
+  <p class="intro">Read this before every practice paper, and on the morning of the exam.</p>
+  <section><h3>Before each question</h3><ol>
+    <li>Circle the small words that change the question: <b>not</b>, <b>distinct</b>, <b>equal</b>, <b>three</b>, <b>from now</b>, <b>mirror</b> or <b>lens</b>.</li>
+    <li>Write one line: <b>Find: ___</b></li></ol></section>
+  <section><h3>While answering</h3><ul>
+    <li>MCQ: write the letter <b>and</b> the answer, like “(b) −10”.</li>
+    <li>Assertion–Reason: Is A true? Is R true? Read “A, because R”. Does it make sense?</li>
+    <li>One step per line. Leave a blank line between steps.</li>
+    <li>Box the final answer. Add the unit.</li>
+    <li>Science long answers: a labelled diagram or a flow chart, plus key words.</li></ul></section>
+  <section><h3>After each question</h3><ul>
+    <li>Reread the last line of the question. Does my answer match what it asked?</li></ul></section>
+  <section><h3>Order</h3><ul>
+    <li>Start with the sections you find easiest. Leave proofs for the end.</li>
+    <li>Don't leave any question blank. A formula and a first step still earn marks.</li></ul></section>`;
+  return box;
+}
+
+function render() {
+  const d = DECKS.find(x => x.id === current);
+  view.innerHTML = "";
+  view.appendChild(d.kind === "flash" ? renderFlash(d) : d.kind === "order" ? renderOrder(d) : d.kind === "drill" ? renderDrill(d) : renderExam());
+}
+renderTabs(); render();
+</script>
+</body>
+</html>
