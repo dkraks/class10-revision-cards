@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Class 11 Stream Finder</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<style>
+/* Layout: one question per screen, a single centred column, big tap targets; results become a ranked list with bars */
+:root {
+  --bg: #F1EFF8;
+  --card: #FFFFFF;
+  --ink: #1B1830;
+  --muted: #5E5A72;
+  --line: #D9D5E8;
+  --accent: #4B3FC4;
+  --accent-soft: #E6E3FA;
+  --sci: #1F6FA8;
+  --com: #1D7A4B;
+  --hum: #B0571B;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12101C; --card: #1C1929; --ink: #ECEAF5; --muted: #A7A2BD; --line: #322E45;
+    --accent: #9C93F2; --accent-soft: #2A2550; --sci: #6DB3E8; --com: #5FC28F; --hum: #EE9D62;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12101C; --card: #1C1929; --ink: #ECEAF5; --muted: #A7A2BD; --line: #322E45;
+  --accent: #9C93F2; --accent-soft: #2A2550; --sci: #6DB3E8; --com: #5FC28F; --hum: #EE9D62;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 18px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+}
+.wrap { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+h1 { font-family: var(--display); font-weight: 800; font-size: clamp(26px, 6vw, 36px); line-height: 1.1; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 700; font-size: clamp(21px, 5vw, 26px); line-height: 1.25; margin: 0; text-wrap: balance; }
+h3 { font-family: var(--display); font-size: 19px; margin: 0; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.card { background: var(--card); border: 1.5px solid var(--line); border-radius: 16px; padding: 22px 20px; display: flex; flex-direction: column; gap: 16px; }
+.section { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.count { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 15px; }
+.progress { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.progress span { display: block; height: 100%; background: var(--accent); transition: width .25s; }
+.opts { display: flex; flex-direction: column; gap: 10px; }
+.opt {
+  text-align: left; width: 100%; min-height: 56px; padding: 12px 16px; border-radius: 12px;
+  border: 1.5px solid var(--line); background: var(--card); color: var(--ink); font: 400 18px/1.35 var(--body); cursor: pointer;
+}
+.opt:hover { border-color: var(--accent); }
+.opt[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn {
+  flex: 1 1 140px; min-height: 52px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--card);
+  color: var(--ink); font: 700 17px var(--body); cursor: pointer; padding: 10px 14px;
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--card); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.small { flex: 0 0 auto; min-height: 40px; font-size: 15px; padding: 6px 14px; }
+.tip { background: var(--accent-soft); border-radius: 10px; padding: 10px 14px; font-size: 16px; }
+ul.plain { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+/* results */
+.rank { display: grid; gap: 14px; }
+.r { display: grid; gap: 6px; }
+.r-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.r-name { font-family: var(--display); font-weight: 700; font-size: 20px; }
+.r-pct { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 15px; }
+.bar { height: 14px; background: var(--line); border-radius: 7px; overflow: hidden; }
+.bar span { display: block; height: 100%; border-radius: 7px; }
+.badge { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); margin-left: 8px; vertical-align: 3px; }
+.why { font-size: 16px; color: var(--muted); }
+textarea { width: 100%; min-height: 220px; font: 14px/1.45 ui-monospace, Menlo, Consolas, monospace; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+@media (prefers-reduced-motion: reduce) { .progress span { transition: none; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Class 11 Stream Finder</h1>
+    <p class="muted">18 short questions. About 10 minutes. There are no wrong answers in parts A, B and D.</p>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+/* weights: S science, C commerce, H humanities, M maths, P psychology, E physical education */
+const Q = [
+{ sec: "A. What you enjoy", q: "Which school subject do you enjoy most?", o: [
+  ["Maths", {C:2, S:1, M:2}], ["Science", {S:3}], ["Social Studies", {H:3, C:1}], ["English", {H:2, C:1}], ["None of these really", {}] ]},
+{ sec: "A. What you enjoy", q: "In your free time, what do you like to read or watch about?", o: [
+  ["How gadgets and machines work", {S:2, M:1}], ["Money, shops, companies, business", {C:3}],
+  ["History, countries, news", {H:3}], ["People and why they act the way they do", {P:3, H:1}], ["Sports and fitness", {E:3}] ]},
+{ sec: "A. What you enjoy", q: "Which job sounds most interesting to you?", o: [
+  ["Engineer, doctor or scientist", {S:3, M:1}], ["Accountant, banker or business owner", {C:3}],
+  ["Lawyer, journalist or government officer", {H:3}], ["Psychologist, counsellor or teacher", {P:2, H:2}],
+  ["Sports coach or fitness trainer", {E:3}], ["I'm not sure yet", {}] ]},
+{ sec: "A. What you enjoy", q: "Which task would you rather do?", o: [
+  ["Solve a numbers problem step by step", {M:2, C:2, S:1}], ["Fill in a table of money figures", {C:3}],
+  ["Learn facts and write about them", {H:2, C:1}], ["Do an experiment in the lab", {S:2}] ]},
+{ sec: "A. What you enjoy", q: "How do you feel about sport and fitness?", o: [
+  ["I love it", {E:3}], ["It's OK", {E:1}], ["Not interested", {}] ]},
+{ sec: "A. What you enjoy", q: "Are you curious about how the mind works? For example memory, emotions, behaviour.", o: [
+  ["Yes, very", {P:3, H:1}], ["A little", {P:1}], ["Not really", {}] ]},
+
+{ sec: "B. How you learn", q: "Which of these is easiest for you?", o: [
+  ["Calculations with clear steps", {C:2, M:2, S:1}], ["Learning long answers by heart", {H:2, C:2}],
+  ["Understanding how and why things happen", {S:2}], ["Working out what a story or case means", {H:1, P:1}] ]},
+{ sec: "B. How you learn", q: "This year, Physics and Chemistry feel…", o: [
+  ["Easy", {S:3}], ["OK", {S:1}], ["Hard", {S:-3}] ]},
+{ sec: "B. How you learn", q: "This year, Maths feels…", o: [
+  ["Easy", {M:3, C:1, S:1}], ["OK", {M:1, C:1}], ["Hard", {M:-3, S:-1}] ]},
+{ sec: "B. How you learn", q: "Long answers in Social Studies feel…", o: [
+  ["Easy. I can learn and write them well", {H:2, C:1}], ["OK", {H:1}], ["Hard", {H:-3, C:-1}] ]},
+{ sec: "B. How you learn", q: "Some questions describe a situation and ask which idea it shows. How do you find these?", o: [
+  ["Fine", {P:2, H:1, C:1}], ["Sometimes confusing", {}], ["Very hard", {P:-3, H:-1}] ]},
+
+{ sec: "C. Try it", q: "In a shoe factory, each worker does only one job, like cutting or stitching. Work gets faster. Which idea is this?",
+  tag: "Business Studies (Commerce)", o: [
+  ["Division of work", {C:2}, true], ["Discipline", {}], ["Unity of command", {}], ["Equity", {}], ["I'm not sure", {}] ]},
+{ sec: "C. Try it", q: "You buy goods for ₹500. You sell them for ₹800. What is your profit?",
+  tag: "Accountancy (Commerce)", o: [
+  ["₹300", {C:2, M:1}, true], ["₹1,300", {}], ["₹500", {}], ["₹800", {}], ["I'm not sure", {}] ]},
+{ sec: "C. Try it", q: "An old record says a king gave land to temples and priests. Why might a king do this?",
+  tag: "History (Humanities)", o: [
+  ["To win the support of powerful groups", {H:2}, true], ["Because the land was useless", {}],
+  ["Because he wanted to become a priest", {}], ["To pay his taxes", {}], ["I'm not sure", {}] ]},
+{ sec: "C. Try it", q: "Aman remembers a phone number by saying it again and again. What is he using?",
+  tag: "Psychology", o: [
+  ["Rehearsal", {P:2, H:1}, true], ["Forgetting", {}], ["Motivation", {}], ["Perception", {}], ["I'm not sure", {}] ]},
+{ sec: "C. Try it", q: "You drop a ball from a height. It falls faster and faster. Why?",
+  tag: "Physics (Science)", o: [
+  ["Gravity pulls it down", {S:2}, true], ["Friction pushes it", {}], ["Magnetism pulls it", {}], ["The air pushes it down", {}], ["I'm not sure", {}] ]},
+
+{ sec: "D. After school", q: "Do you know what you want to study after Class 12?", o: [
+  ["Yes, something that needs Maths (engineering, economics, data)", {M:3, S:1, C:1}],
+  ["Yes, business or commerce", {C:3}], ["Yes, law, media or arts", {H:3}],
+  ["Yes, psychology or counselling", {P:3, H:1}], ["Not yet", {}] ]},
+{ sec: "D. After school", q: "How much pressure do you want in Class 11?", o: [
+  ["As little as possible", {E:2, M:-1, S:-1}], ["A normal amount", {}], ["I like a challenge", {M:1, S:1}] ]}
+];
+
+const STREAMS = [
+  { k: "C", name: "Commerce", color: "var(--com)", subjects: "English, Accountancy, Economics, Business Studies" },
+  { k: "H", name: "Humanities", color: "var(--hum)", subjects: "English, Political Science, History, Psychology" },
+  { k: "S", name: "Science", color: "var(--sci)", subjects: "English, Physics, Chemistry" }
+];
+
+/* max achievable per key, to turn raw scores into a 0–100 fit */
+const MAX = {}, MIN = {};
+["S","C","H","M","P","E"].forEach(k => {
+  let mx = 0, mn = 0;
+  Q.forEach(q => { const v = q.o.map(o => o[1][k] || 0); mx += Math.max(...v); mn += Math.min(...v); });
+  MAX[k] = mx; MIN[k] = mn;
+});
+
+const KEY = "stream-finder-v1";
+const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch (e) { return null; } };
+const save = s => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} };
+let state = load() || { step: -1, ans: {} };
+
+const app = document.getElementById("app");
+const el = (t, c, txt) => { const e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; };
+
+const canSpeak = typeof window.speechSynthesis !== "undefined";
+function speak(text) { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.rate = 0.9; speechSynthesis.speak(u); } catch (e) {} }
+
+function go(step) { state.step = step; save(state); render(); window.scrollTo({ top: 0 }); }
+
+function renderIntro() {
+  const c = el("div", "card");
+  c.append(el("h2", null, "Which stream fits you best?"));
+  c.append(el("p", null, "Answer honestly. Pick the answer that is most true for you, not the one you think is best."));
+  const ul = el("ul", "plain");
+  ["Part A: what you enjoy", "Part B: how you learn", "Part C: five tiny questions from Class 11 subjects", "Part D: after school"].forEach(t => ul.append(el("li", null, t)));
+  c.append(ul);
+  c.append(el("p", "tip", "This is a guide to start a conversation, not a test. Talk about the result with your parents and teachers."));
+  const b = el("div", "btns");
+  const start = el("button", "btn primary", Object.keys(state.ans).length ? "Continue" : "Start");
+  start.onclick = () => go(Object.keys(state.ans).length ? Math.min(Object.keys(state.ans).length, Q.length - 1) : 0);
+  b.append(start);
+  if (Object.keys(state.ans).length) {
+    const re = el("button", "btn", "Start again");
+    re.onclick = () => { state = { step: 0, ans: {} }; save(state); render(); };
+    b.append(re);
+  }
+  c.append(b);
+  app.append(c);
+}
+
+function renderQ(i) {
+  const q = Q[i];
+  const top = el("div", "top");
+  top.append(el("span", "section", q.sec), el("span", "count", "Question " + (i + 1) + " of " + Q.length));
+  const prog = el("div", "progress"); const f = el("span"); f.style.width = (100 * i / Q.length) + "%"; prog.append(f);
+  app.append(top, prog);
+
+  const c = el("div", "card");
+  if (q.tag) c.append(el("span", "count", q.tag));
+  c.append(el("h2", null, q.q));
+  if (canSpeak) {
+    const r = el("button", "btn small", "Read aloud");
+    r.onclick = () => speak(q.q + ". " + q.o.map(o => o[0]).join(". "));
+    c.append(r);
+  }
+  const opts = el("div", "opts"); opts.setAttribute("role", "group");
+  q.o.forEach((o, k) => {
+    const b = el("button", "opt", o[0]); b.type = "button";
+    b.setAttribute("aria-pressed", state.ans[i] === k ? "true" : "false");
+    b.onclick = () => { state.ans[i] = k; save(state); setTimeout(() => go(i + 1 < Q.length ? i + 1 : Q.length), 180); render(); };
+    opts.append(b);
+  });
+  c.append(opts);
+  const nav = el("div", "btns");
+  const back = el("button", "btn", "Back"); back.onclick = () => go(i - 1);
+  const next = el("button", "btn primary", i + 1 < Q.length ? "Next" : "See my result");
+  next.disabled = state.ans[i] == null; next.onclick = () => go(i + 1 < Q.length ? i + 1 : Q.length);
+  nav.append(back, next);
+  c.append(nav);
+  app.append(c);
+}
+
+function scores() {
+  const raw = { S:0, C:0, H:0, M:0, P:0, E:0 }; let right = 0, tries = 0; const tries_detail = [];
+  Q.forEach((q, i) => {
+    const k = state.ans[i]; if (k == null) return;
+    const o = q.o[k]; Object.entries(o[1]).forEach(([key, v]) => raw[key] += v);
+    if (q.tag) { tries++; const ok = !!o[2]; if (ok) right++; tries_detail.push([q.tag, ok]); }
+  });
+  const pct = {};
+  Object.keys(raw).forEach(k => pct[k] = Math.round(100 * (raw[k] - MIN[k]) / (MAX[k] - MIN[k] || 1)));
+  return { raw, pct, right, tries, tries_detail };
+}
+
+function fifth(top, pct) {
+  if (top === "C") {
+    const opts = [["Mathematics", pct.M], ["Psychology", pct.P], ["Physical Education", pct.E]].sort((a, b) => b[1] - a[1]);
+    return { opts, note: "In Commerce, the fifth subject can be Mathematics, Psychology or Physical Education." };
+  }
+  if (top === "H") {
+    const opts = [["Physical Education", pct.E], ["Economics", Math.round((pct.C + pct.M) / 2)]].sort((a, b) => b[1] - a[1]);
+    return { opts, note: "In Humanities, Psychology is already compulsory. The fifth subject can be Economics or Physical Education." };
+  }
+  const opts = [["Mathematics", pct.M], ["Psychology", pct.P], ["Physical Education", pct.E]].sort((a, b) => b[1] - a[1]);
+  return { opts, note: "In Science, choose between Biology, Mathematics, Computer Science and others with your teachers. Your interest scores are shown below." };
+}
+
+function summaryText(s, ranked, f) {
+  const lines = ["Class 11 Stream Finder – result", ""];
+  ranked.forEach((r, i) => lines.push((i + 1) + ". " + r.name + ": " + s.pct[r.k] + "% fit"));
+  lines.push("", "Fifth subject (" + ranked[0].name + "): " + f.opts.map(o => o[0] + " " + o[1] + "%").join(", "));
+  lines.push("", "Try-it questions: " + s.right + " of " + s.tries + " correct");
+  s.tries_detail.forEach(t => lines.push("  " + (t[1] ? "✓ " : "✗ ") + t[0]));
+  lines.push("", "Answers:");
+  Q.forEach((q, i) => { const k = state.ans[i]; lines.push((i + 1) + ". " + q.q + " → " + (k == null ? "(skipped)" : q.o[k][0])); });
+  return lines.join("\n");
+}
+
+function renderResult() {
+  const s = scores();
+  const ranked = STREAMS.slice().sort((a, b) => s.pct[b.k] - s.pct[a.k]);
+  const f = fifth(ranked[0].k, s.pct);
+
+  const c = el("div", "card");
+  c.append(el("span", "section", "Your result"));
+  c.append(el("h2", null, "Best fit: " + ranked[0].name));
+  const close = s.pct[ranked[0].k] - s.pct[ranked[1].k] <= 8;
+  c.append(el("p", "muted", close
+    ? ranked[0].name + " and " + ranked[1].name + " are close. Both are worth talking about."
+    : ranked[0].name + " is a clear first choice from your answers."));
+  const rank = el("div", "rank");
+  ranked.forEach((r, i) => {
+    const row = el("div", "r");
+    const head = el("div", "r-head");
+    const nm = el("span", "r-name", r.name);
+    if (i === 0) nm.append(el("span", "badge", "Top"));
+    head.append(nm, el("span", "r-pct", s.pct[r.k] + "% fit"));
+    const bar = el("div", "bar"); const sp = el("span"); sp.style.width = Math.max(4, s.pct[r.k]) + "%"; sp.style.background = r.color; bar.append(sp);
+    row.append(head, bar, el("p", "why", "Compulsory: " + r.subjects));
+    rank.append(row);
+  });
+  c.append(rank);
+  app.append(c);
+
+  const c2 = el("div", "card");
+  c2.append(el("h3", null, "Fifth subject for " + ranked[0].name));
+  c2.append(el("p", "muted", f.note));
+  const rk = el("div", "rank");
+  f.opts.forEach((o, i) => {
+    const row = el("div", "r"); const head = el("div", "r-head");
+    const nm = el("span", "r-name", o[0]); if (i === 0) nm.append(el("span", "badge", "Top"));
+    head.append(nm, el("span", "r-pct", o[1] + "% fit"));
+    const bar = el("div", "bar"); const sp = el("span"); sp.style.width = Math.max(4, o[1]) + "%"; sp.style.background = "var(--accent)"; bar.append(sp);
+    row.append(head, bar); rk.append(row);
+  });
+  c2.append(rk);
+  app.append(c2);
+
+  const c3 = el("div", "card");
+  c3.append(el("h3", null, "Try-it questions: " + s.right + " of " + s.tries + " correct"));
+  const ul = el("ul", "plain");
+  s.tries_detail.forEach(t => ul.append(el("li", null, (t[1] ? "Correct: " : "Not this time: ") + t[0])));
+  c3.append(ul);
+  c3.append(el("p", "tip", "Notice which questions felt easy to understand, not only which were right. Reading the question is a big part of Class 11 exams."));
+  app.append(c3);
+
+  const c4 = el("div", "card");
+  c4.append(el("h3", null, "Share with your parents or teacher"));
+  c4.append(el("p", "muted", "Copy this summary and send it on WhatsApp or email."));
+  const ta = el("textarea"); ta.id = "summary"; ta.readOnly = true; ta.value = summaryText(s, ranked, f);
+  const b = el("div", "btns");
+  const copy = el("button", "btn primary", "Copy summary");
+  copy.onclick = () => {
+    const done = () => { copy.textContent = "Copied"; setTimeout(() => copy.textContent = "Copy summary", 1800); };
+    try { navigator.clipboard.writeText(ta.value).then(done, () => { ta.select(); copy.textContent = "Selected. Press copy"; }); }
+    catch (e) { ta.select(); copy.textContent = "Selected. Press copy"; }
+  };
+  const back = el("button", "btn", "Change answers"); back.onclick = () => go(0);
+  const again = el("button", "btn", "Start again");
+  again.onclick = () => {
+    if (again.dataset.c) { state = { step: -1, ans: {} }; save(state); render(); }
+    else { again.dataset.c = "1"; again.textContent = "Tap again to clear"; }
+  };
+  b.append(copy, back, again);
+  c4.append(ta, b);
+  c4.append(el("p", "muted", "This is a guide, not a test result. Final choices are best made with parents, teachers and a school counsellor."));
+  app.append(c4);
+}
+
+function render() {
+  app.innerHTML = "";
+  if (state.step < 0) renderIntro();
+  else if (state.step >= Q.length) renderResult();
+  else renderQ(state.step);
+}
+render();
+</script>
+</body>
+</html>

@@ -15,3 +15,7 @@ The page has these decks:
 Progress is saved in the browser you use, so use the same device and browser each time.
 
 The site is a single `index.html` file with no build step.
+
+## Class 11 Stream Finder
+
+`stream-finder/index.html` is an 18-question guide that ranks the Science, Commerce and Humanities streams and suggests a fifth subject. At the end it gives a summary to copy and share.
